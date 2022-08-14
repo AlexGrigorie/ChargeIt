@@ -1,0 +1,24 @@
+﻿@model CarOwnerViewModel
+
+@{
+    ViewData["Title"] = "Add Car Owner";
+}
+
+<h1 class="mb-5 text-center text-uppercase">Add car owner</h1>
+
+<form asp-controller="CarOwners" asp-action="AddNewCarOwner" method="post">
+    <div class="form-group mb-forms">
+        <label asp-for="Name" class="form-label"></label>
+        <input type="text" class="form-control" asp-for="Name" placeholder="Name">
+        <span asp-validation-for="Name" class="text-danger"></span>
+
+    </div>
+    <div class="form-group mb-forms">
+        <label asp-for="Email" class="form-label"></label>
+        <input type="text" class="form-control" asp-for="Email" placeholder="Email address">
+        <span asp-validation-for="Email" class="text-danger"></span>
+
+    </div>
+    <a type="button" class="btn btn-danger" asp-controller="CarOwners" asp-action="Index">Cancel</a>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>

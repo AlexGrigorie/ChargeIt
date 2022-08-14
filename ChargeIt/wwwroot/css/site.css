@@ -1,0 +1,38 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: #fafafa;
+}
+
+.img-resposive {
+    width: 100%;
+    height: 420px;
+}
+
+.mb-forms {
+    margin-bottom: 10px;
+}
+
+
+.form-input {
+    padding: 10px;
+}
+
+.clickable-area::-webkit-calendar-picker-indicator {
+    padding-left:1160px;
+    cursor: pointer;
+}

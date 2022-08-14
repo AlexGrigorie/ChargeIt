@@ -1,0 +1,27 @@
+﻿@model CarViewModel
+@{
+    ViewData["Title"] = "Add Car";
+}
+
+<h1 class="mb-5 text-center text-uppercase">Add a new car</h1>
+<form asp-controller="Cars" asp-action="AddNewCar" method="post">
+    <div class="form-group mb-forms">
+        <label asp-for="PlateNumber" class="form-label"></label>
+        <input type="text" class="form-control" asp-for="PlateNumber" placeholder="Plate number">
+        <span asp-validation-for="PlateNumber" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-12">
+        <select asp-for="CarOwnerId"
+                
+                asp-items="@(new SelectList(Model.Owners,
+                    nameof(DropDownViewModel.Id),nameof(DropDownViewModel.Value)))"
+                class="form-control">
+            <option value="">Select a car owner</option>
+        </select>
+        <span asp-validation-for="CarOwnerId" class="text-danger"></span>
+    </div>
+
+    <a type="button" class="btn btn-danger mt-3" asp-controller="Cars" asp-action="Index">Cancel</a>
+    <button type="submit" class="btn btn-success mt-3">Save</button>
+</form>

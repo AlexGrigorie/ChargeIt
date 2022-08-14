@@ -1,0 +1,150 @@
+﻿@model BookingsViewModel;
+@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<h1 class="mb-5 text-center text-uppercase">Schedule a new Booking</h1>
+
+<form asp-controller="Bookings" asp-action="AddNewBooking" method="post">
+    <div class="form-group mb-forms">
+        <label asp-for="ChargeMachineId" class="form-label"></label>
+        <div class="col-md-12">
+            <select id="charge-machine-dropdown" asp-for="ChargeMachineId"
+                    onchange="getAvailabelIntervals(); getCurrentStation()"
+                    asp-items="@(new SelectList(Model.ChargeMachines,
+                    nameof(DropDownViewModel.Id),nameof(DropDownViewModel.Value)))"
+                    class="form-control">
+                <option value="">Select a charge machine</option>
+            </select>
+            <span asp-validation-for="ChargeMachineId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group mb-forms">
+        <label asp-for="CarId" class="form-label"></label>
+        <div class="col-md-12">
+            <select asp-for="CarId" asp-items="@(new SelectList(Model.Cars, nameof(DropDownViewModel.Id),
+                nameof(DropDownViewModel.Value)))" class="form-control">
+                <option value="">Select a car</option>
+            </select>
+            <span asp-validation-for="CarId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group mb-forms">
+        <label asp-for="Date" class="form-label"></label>
+        <input type="Date" id="date-dropdown" onchange="getAvailabelIntervals()"
+               min="@DateTime.Now.Date.ToString("yyyy-MM-dd")"
+               class="form-control clickable-area" asp-for="Date">
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-forms">
+        <label asp-for="IntervalHour" class="form-label"></label>
+        <div class="col-md-12">
+            <select id="available-intervals-dropdown" class="form-control form-input" asp-for="IntervalHour">
+                <option value="-1">Select an available interval slot</option>
+            </select>
+            <span asp-validation-for="IntervalHour" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success mb-3">Save</button>
+</form>
+
+<div id="googleMap" style="height:400px;width:100%;"></div>
+<script>
+    function initMap(position) {
+        var myCenter = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        var mapProp = {
+            center: myCenter, zoom: 12, scrollwheel: true,
+            draggable: true, mapTypeId: google.maps.MapTypeId.ROADMAP,
+        };
+        var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+        var userLocation = new google.maps.Marker({
+            position: myCenter,
+            map: map,
+            title: 'Your location'
+        });
+
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(initMap);
+        } else {
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+        getLocation();
+    });
+    function getCurrentStation() {
+        var chargeMachineId = document.getElementById("charge-machine-dropdown").value;
+        var data = @Html.Raw(JsonConvert.SerializeObject(this.Model.ChargeMachines));
+
+        $.each(data, function(i, item) {
+            if (item.Id == chargeMachineId) {
+                var stationLocation = new google.maps.LatLng(item.Latitude, item.Longitude);
+                var mapProp = {
+                    center: stationLocation, zoom: 12, scrollwheel: true,
+                    draggable: true, mapTypeId: google.maps.MapTypeId.ROADMAP,
+                };
+                var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+                var marker = new google.maps.Marker({
+                    'position': new google.maps.LatLng(item.Latitude, item.Longitude),
+                    'map': map,
+                    'title': `Lat:${item.Latitude}, Lon:${item.Longitude}`
+                });
+            }
+
+        });
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js"></script>
+
+<script>
+    $(document).ready(function() {
+        getAvailabelIntervals();
+    });
+    function getAvailabelIntervals() {
+        var chargeMachineId = document.getElementById("charge-machine-dropdown").value;
+        var date = document.getElementById("date-dropdown").value;
+
+        if (chargeMachineId == "" || date === "") {
+            return;
+        }
+        $.ajax({
+            url: "/Bookings/GetAvailableIntervals?date=" + date + "&chargeMachineId=" + chargeMachineId,
+            type: 'get',
+            success: function(data) {
+                var availableIntervalsDropdown = document.getElementById("available-intervals-dropdown");
+                availableIntervalsDropdown.innerHTML = "";
+
+                var defaultOption = document.createElement("option");
+                defaultOption.value = -1;
+                defaultOption.innerText = "Select an available interval slot";
+
+                availableIntervalsDropdown.appendChild(defaultOption)
+
+                for (var i = 0; i < data.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = data[i];
+                    option.innerText = get24FormattedHour(data[i]) + " - " + get24FormattedHour(data[i] + 1)
+                    availableIntervalsDropdown.appendChild(option)
+                }
+
+            }
+
+        });
+    }
+    function get24FormattedHour(hour) {
+        return hour < 10 ? "0" + hour + ":00" : hour + ":00";
+    }
+</script>
+
+

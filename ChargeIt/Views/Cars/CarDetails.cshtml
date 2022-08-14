@@ -1,0 +1,108 @@
+﻿@model ChargeIt.Models.CarDetailsViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<link rel="stylesheet" href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" asp-append-version="true" />
+
+<h1 class="display-4 mb-3 text-start text-uppercase fs-3 "><span class="fw-bold">Car's palte number:</span> @Model.Car.PlateNumber</h1>
+
+<div class="card" style="width: 25rem;">
+    <img src="https://thedriven.io/wp-content/uploads/2022/05/screenshot-teslamotorsclub.com-2022.05.23-14_49_41.jpg?w=640"
+         class="card-img-top" alt="Station">
+    <div class="card-body">
+        <div>
+            <label asp-for="@Model.Car.PlateNumber" class="form-label fw-bold"></label>
+            <span class="card-text">: @Model.Car.PlateNumber</span>
+        </div>
+        <div>
+            <label asp-for="@Model.Car.OwnerName" class="form-label fw-bold"></label>
+            <span class="card-text">: @Model.Car.OwnerName</span>
+        </div>
+    </div>
+</div>
+
+<h1 class="display-4 mb-3 text-start text-uppercase fs-3 fw-bold mt-4">Booking history</h1>
+@if (Model.Bookings.Count == 0)
+{
+    <p class="display-4 text-start text-uppercase fs-6 text-danger fw-bold">No bookings available!</p>
+}
+else
+{
+    <table id="car-bookings" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="table-dark">Id</th>
+                <th class="table-dark">Code</th>
+                <th class="table-dark">Start date</th>
+                <th class="table-dark">Charge Machine</th>
+                <th class="table-dark">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int indexTable = 0;
+            }
+            @foreach (var booking in Model.Bookings)
+            {
+                <tr>
+                    <td>
+                        @{
+                            indexTable++;
+                        }@indexTable
+                    </td>
+                    <td>@booking.BookingCode</td>
+                    <td>@booking.StartTime.ToString(" dd-MMM-yy HH:mm")</td>
+                    <td>@booking.StationCode, @booking.City, @booking.Street, @booking.Number</td>
+                    <td>
+                        <a class="btn btn-danger deleteItem"
+                           data-bs-target="#staticBackdrop" 
+                           data-bs-toggle="modal"
+                           data-path="@Url.Action("DeleteActiveBooking","Bookings",  
+                           new {id=booking.Id, entityId=@Model.Car.Id, sourceAction="CarDetails"})"
+                           >Cancel Booking
+                         </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Delete confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this booking?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No</button>
+        <button id="btnContinueDelete" type="button" class="btn btn-danger">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#car-bookings').DataTable();
+        getLocation();
+    });
+
+</script>
+<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+    var pathToDelete;
+    $(".deleteItem").click(function(e) {
+        pathToDelete = $(this).data('path');
+    });
+
+    $("#btnContinueDelete").click(function() {
+        window.location = pathToDelete;
+    });
+</script>

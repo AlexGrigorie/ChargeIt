@@ -1,0 +1,35 @@
+﻿@model List<CarViewModel>
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@if(@Model.Count == 0) {
+    <p class="text-center fw-bold text-danger fs-3">This person has no car!</p>
+} else {
+    <h1 class="display-4 mb-5 text-center text-uppercase fs-3"><span class="fw-bold">All @Model.FirstOrDefault().OwnerName`s cars:</span> </h1>
+     <table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="table-dark">Index</th>
+            <th class="table-dark">Palte number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int indexTable = 0;
+        }
+        @foreach (var car in Model)
+        {
+            
+            <tr>
+                <td>@{indexTable++;}@indexTable</td>
+                <td>@car.PlateNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+}
+
+   
